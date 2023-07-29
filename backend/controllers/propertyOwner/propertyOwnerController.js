@@ -34,7 +34,7 @@ const checkLoginOwner = async(req, res, next) => {
     if(resp){
       results.password = undefined;
       const jsontoken = sign({ resp: results}, "property", {
-        expiresIn: "1h"
+        expiresIn: "3m"
       })
       return res.json({
         ownerid: results.ownerid,

@@ -60,6 +60,9 @@ module.exports = {
             message: "Invalid Token"
           })
         }
+        if (Date.now() >= decode.exp * 1000) {
+          return res.status(401).json({ message: 'Token has expired.' });
+        }
         else{
           next();
         }
