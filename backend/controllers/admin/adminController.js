@@ -38,7 +38,13 @@ const checkLoginAdmin = async(req, res, next) => {
         expiresIn: "1h"
       })
       return res.json({
+        adminid: results.adminid,
         token: jsontoken
+      })
+    }
+    else{
+      return res.json({
+        message: "Username and Password doesnt match"
       })
     }
   })

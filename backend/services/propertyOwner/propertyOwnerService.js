@@ -33,11 +33,12 @@ module.exports = {
   },
 
   updateById : (data, callback) => {
+    console.log(data)
     db.query(
       `update property_owner set isapproved=? where ownerid=?`,
       [
-        data.isapproved,
-        data.id
+        data[0].isapproved,
+        data[1]
       ],
       (error, results, fields) => {
         console.log(results)
@@ -49,7 +50,6 @@ module.exports = {
     },
 
   createCatalogueByOwnerId: (data, callback) => {
-    console.log(data)
     db.query(
       `insert into catalogue (ownerid, title, description) values (?,?,?)`,
       [
@@ -58,7 +58,6 @@ module.exports = {
         data[0].description
       ],
       (error, results, fields) => {
-        console.log(results)
         if(error)
           return callback(error)
         return callback(null, results)

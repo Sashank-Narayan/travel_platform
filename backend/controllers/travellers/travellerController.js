@@ -43,6 +43,11 @@ const checkLogin = async(req, res, next) => {
         token: jsontoken
       })
     }
+    else{
+      return res.json({
+        message: "Username and Password doesnt match"
+      })
+    }
   })
 }
 

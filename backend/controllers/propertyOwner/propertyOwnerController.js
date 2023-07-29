@@ -38,7 +38,13 @@ const checkLoginOwner = async(req, res, next) => {
         expiresIn: "1h"
       })
       return res.json({
+        ownerid: results.ownerid,
         token: jsontoken
+      })
+    }
+    else{
+      return res.json({
+        message: "Username and Password doesnt match"
       })
     }
   })
@@ -62,7 +68,7 @@ const getAllOwner = async(req, res, next) => {
 
 const updateByOwnerId = async(req, res, next) => {
   console.log(req.params.id)
-  updateById(req.body, (error, results) => {
+  updateById([req.body, req.params.id], (error, results) => {
     if(error)
       return false
     if(!results)
@@ -80,12 +86,10 @@ const updateByOwnerId = async(req, res, next) => {
 const postCatalogue = (req, res, next) => {
   createCatalogueByOwnerId([req.body, req.params.id], (error, results) => {
     if(error)
-      return false
-    if(!results)
       return res.json({
-        success: 0,
-        message: "Failed to update user"
+        message: error
       })
+    console.log(results)
     return res.status(200).json({
       success: 1,
       message: "successfully created"

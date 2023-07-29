@@ -54,7 +54,6 @@ module.exports = {
     if(token){
       token = token.slice(7)
       verify(token, "property", (err, decode) => {
-        console.log(decode[resp][ownerid]);
         if(err) {
           res.json({
             success: 0,
