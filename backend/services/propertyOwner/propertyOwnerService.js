@@ -1,4 +1,7 @@
 const db = require("../../config/db")
+const multer = require("multer")
+const path = require("path")
+const express = require("express")
 
 module.exports = {
   createSignUp: (data, callback) => {
@@ -50,12 +53,14 @@ module.exports = {
     },
 
   createCatalogueByOwnerId: (data, callback) => {
+    console.log(data)
     db.query(
-      `insert into catalogue (ownerid, title, description) values (?,?,?)`,
+      `insert into catalogue (ownerid, title, description, images) values (?,?,?,?)`,
       [
         data[1],
         data[0].title,
-        data[0].description
+        data[0].description,
+        `http://localhost:8080/profile/${data[2].filename}`
       ],
       (error, results, fields) => {
         if(error)

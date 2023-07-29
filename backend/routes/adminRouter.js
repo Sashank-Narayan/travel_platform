@@ -9,6 +9,5 @@ adminRouter.post("/login",checkLoginAdmin);
 adminRouter.get("/property-owner",checkAdminToken, getAllOwner);
 adminRouter.patch("/property-owner/:id",checkAdminToken, updateByOwnerId);
 adminRouter.get("/property-owner/:id/catalogue",checkAdminToken, getCatalogue);
-// adminRouter.get("/:id/catalogue",getCatalogue);
 
 module.exports = adminRouter;

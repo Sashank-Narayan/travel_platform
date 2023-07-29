@@ -1,0 +1,41 @@
+CREATE TABLE Travellers (
+    travellerid INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) unique,
+    password VARCHAR(255)
+);
+
+CREATE TABLE Catalogue (
+    catalogueid INT AUTO_INCREMENT PRIMARY KEY,
+    ownerid INT,
+    title VARCHAR(255) unique,
+    description VARCHAR(255),
+    images VARCHAR(255),
+    foreign key (ownerid) references property_owner(ownerid)
+);
+
+CREATE TABLE property_owner (
+    ownerid INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) unique,
+    password VARCHAR(255),
+    isapproved boolean
+);
+
+
+CREATE TABLE Admin (
+    adminid INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) unique,
+    password VARCHAR(255)
+);
+
+CREATE TABLE bookings (
+    bookingid INT AUTO_INCREMENT PRIMARY KEY,
+    travellerid INT,
+    ownerid INT,
+    catalogueid INT,
+    foreign key (ownerid) references property_owner(ownerid),
+	foreign key (travellerid) references travellers(travellerid),
+	foreign key (catalogueid) references catalogue(catalogueid)
+);

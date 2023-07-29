@@ -3,7 +3,6 @@ const {genSaltSync, hashSync, compareSync} = require("bcrypt")
 const {createSignUp, getByEmailID, updateById, createCatalogueByOwnerId, getCatalogueByOwnerId} = require("../../services/propertyOwner/propertyOwnerService")
 const { sign } = require("jsonwebtoken");
 
-
 const signUpOwner = async(req, res, next) => {
   const salt = genSaltSync(10)
   req.body.password = hashSync(req.body.password, salt);
@@ -84,7 +83,8 @@ const updateByOwnerId = async(req, res, next) => {
 }
 
 const postCatalogue = (req, res, next) => {
-  createCatalogueByOwnerId([req.body, req.params.id], (error, results) => {
+  console.log(req.file)
+  createCatalogueByOwnerId([req.body, req.params.id, req.file], (error, results) => {
     if(error)
       return res.json({
         message: error
@@ -92,6 +92,7 @@ const postCatalogue = (req, res, next) => {
     console.log(results)
     return res.status(200).json({
       success: 1,
+      image_url: `http://localhost:8080/profile/${req.file.filename}`,
       message: "successfully created"
     })
   })
