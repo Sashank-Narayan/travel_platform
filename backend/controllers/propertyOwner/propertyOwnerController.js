@@ -1,21 +1,74 @@
 const db = require("../../config/db");
 const {genSaltSync, hashSync, compareSync} = require("bcrypt")
-const {createSignUp, getByEmailID, updateById, createCatalogueByOwnerId, getCatalogueByOwnerId} = require("../../services/propertyOwner/propertyOwnerService")
+const {createSignUp, getByEmailID, updateById, createCatalogueByOwnerId, getCatalogueByOwnerId, getByOwnerId, updateVerifiedByOwnerId} = require("../../services/propertyOwner/propertyOwnerService")
 const { sign } = require("jsonwebtoken");
+const { body, validationResult } = require('express-validator');
+const sendEmail = require("../../utils/email")
+const {encrypt, decrypt} = require("../../utils/encryptAndDecrypt");
+
+const validateRegistrationFields = [
+  body('name').trim().notEmpty().withMessage('Name is required.'),
+  body('email').trim().isEmail().withMessage('Invalid email format.'),
+  body('password')
+    .trim()
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long.'),
+]
 
 const signUpOwner = async(req, res, next) => {
+  const errors = validationResult(req);
+  let message;
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   const salt = genSaltSync(10)
   req.body.password = hashSync(req.body.password, salt);
-  createSignUp(req.body, (error, results) => {
-  if(error)
+  const token = encrypt(req.body.email);
+  console.log(token)
+  createSignUp(req.body, (err, results) => {
+  if(err)
     return res.status(500).json({
-      status: 0,
-      message: error
+      status: "FAILED",
+      message: err
     })
+
+  try{
+    message = `http://localhost:8080/api/v1/property-owner/verify/${results.insertId}?token1=${token.token1}&token2=${token.token2}`;
+    sendEmail(req.body.email, "Verify Email", message);
+    } catch (error) {
+    return res.status(400).send({err : "An error occured " + error});
+  }
   return res.status(200).json({
-    success: 1,
+    status: "SUCCESS",
+    verification_url: message,
     data: results
     })
+  })
+}
+
+const verifyEmailToken = async(req, res, next) => {
+  let verfied = false;
+  console.log(req.query.token1, req.query.token2, req.params.id)
+  getByOwnerId(req.params.id,(error, results) => {
+    console.log(results)
+    if (!results) return res.status(400).send("Invalid link");
+    try{
+      const resp = decrypt({token1: req.query.token1, token2: req.query.token2})
+      console.log(resp, req.query.token1, results.email)
+      if(resp == results.email){
+        updateVerifiedByOwnerId(req.params.id, (err, rest) => {
+          console.log(rest)
+          if(err)
+            return res.status(400).json({message: "Could not verify account"});
+        })
+        return res.status(200).json({
+          message: "Successfully verified"
+        })
+      }
+    } catch(e){
+      return res.status(400).send("Invalid Link");
+    }
+    return res.status(400).send("Some error occured");
   })
 }
 
@@ -23,10 +76,12 @@ const checkLoginOwner = async(req, res, next) => {
   getByEmailID(req.body, (error, results) => {
     if(error)
       return res.json({
+        status: "FAILED",
         message: error
       })
     if(!results)
       return res.json({
+        status: "FAILED",
         message: "Invalid Credentials"
       })
     console.log(req.body.password, results)
@@ -37,12 +92,14 @@ const checkLoginOwner = async(req, res, next) => {
         expiresIn: "3m"
       })
       return res.json({
+        status: "SUCCESS",
         ownerid: results.ownerid,
         token: jsontoken
       })
     }
     else{
       return res.json({
+        status: "FAILED",
         message: "Username and Password doesnt match"
       })
     }
@@ -59,7 +116,10 @@ const getAllOwner = async(req, res, next) => {
         return res.json(results)
       }
       else {
-        console.log(err)
+        return res.json({
+          status: "FAILED",
+          message: err
+        })
       }
     }
   )
@@ -111,4 +171,4 @@ const getCatalogue = (req, res, next) => {
   })
 }
 
-module.exports = {signUpOwner, checkLoginOwner, getAllOwner, updateByOwnerId, postCatalogue, getCatalogue};
+module.exports = {signUpOwner, checkLoginOwner, getAllOwner, updateByOwnerId, postCatalogue, getCatalogue, validateRegistrationFields, verifyEmailToken};

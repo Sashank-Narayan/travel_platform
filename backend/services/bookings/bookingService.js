@@ -4,7 +4,7 @@ module.exports = {
   getBookingsByTravellerId : (data, callback) => {
   console.log(data)
   db.query(
-    `SELECT b.bookingid, b.travellerid, b.catalogueid, c.title as Venue
+    `SELECT b.bookingid, b.travellerid, b.catalogueid, c.title as Venue, c.ownerid
       FROM bookings b
       JOIN catalogue c ON b.catalogueid = c.catalogueid
       WHERE b.travellerid =?`,

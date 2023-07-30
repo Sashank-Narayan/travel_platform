@@ -21,9 +21,38 @@ module.exports = {
     );
   },
 
+  getByOwnerId : (data, callback) => {
+  db.query(
+    `select * from property_owner where ownerid = ?`,
+    [
+      data
+    ],
+    (error, results, fields) => {
+      if(error)
+        return callback(error)
+      return callback(null, results[0])
+      }
+    )
+  },
+
+  updateVerifiedByOwnerId : (data, callback) => {
+  db.query(
+    `update property_owner set verified=? where ownerid=?`,
+    [
+      true,
+      data
+    ],
+    (error, results, fields) => {
+      if(error)
+        return callback(error)
+      return callback(null, results)
+      }
+    )
+  },
+
   getByEmailID : (data, callback) => {
   db.query(
-    `select * from property_owner where email=? and isapproved=true`,
+    `select * from property_owner where email=? and isapproved=true and verified = true`,
     [
       data.email
     ],
@@ -38,7 +67,7 @@ module.exports = {
   updateById : (data, callback) => {
     console.log(data)
     db.query(
-      `update property_owner set isapproved=? where ownerid=?`,
+      `update property_owner set isapproved=? where ownerid=? and verified = true`,
       [
         data[0].isapproved,
         data[1]
