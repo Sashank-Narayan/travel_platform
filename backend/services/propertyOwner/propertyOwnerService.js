@@ -106,7 +106,6 @@ module.exports = {
           data
         ],
         (error, results, fields) => {
-          console.log(results)
           if(error)
             return callback(error)
           return callback(null, results)

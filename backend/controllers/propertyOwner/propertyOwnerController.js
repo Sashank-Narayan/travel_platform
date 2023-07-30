@@ -5,15 +5,7 @@ const { sign } = require("jsonwebtoken");
 const { body, validationResult } = require('express-validator');
 const sendEmail = require("../../utils/email")
 const {encrypt, decrypt} = require("../../utils/encryptAndDecrypt");
-
-const validateRegistrationFields = [
-  body('name').trim().notEmpty().withMessage('Name is required.'),
-  body('email').trim().isEmail().withMessage('Invalid email format.'),
-  body('password')
-    .trim()
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long.'),
-]
+require("dotenv").config()
 
 const signUpOwner = async(req, res, next) => {
   const errors = validationResult(req);
@@ -33,7 +25,7 @@ const signUpOwner = async(req, res, next) => {
     })
 
   try{
-    message = `http://localhost:8080/api/v1/property-owner/verify/${results.insertId}?token1=${token.token1}&token2=${token.token2}`;
+    message = `${process.env.HOST}property-owner/verify/${results.insertId}?token1=${token.token1}&token2=${token.token2}`;
     sendEmail(req.body.email, "Verify Email", message);
     } catch (error) {
     return res.status(400).send({err : "An error occured " + error});
@@ -50,14 +42,12 @@ const verifyEmailToken = async(req, res, next) => {
   let verfied = false;
   console.log(req.query.token1, req.query.token2, req.params.id)
   getByOwnerId(req.params.id,(error, results) => {
-    console.log(results)
     if (!results) return res.status(400).send("Invalid link");
     try{
       const resp = decrypt({token1: req.query.token1, token2: req.query.token2})
       console.log(resp, req.query.token1, results.email)
       if(resp == results.email){
         updateVerifiedByOwnerId(req.params.id, (err, rest) => {
-          console.log(rest)
           if(err)
             return res.status(400).json({message: "Could not verify account"});
         })
@@ -73,14 +63,18 @@ const verifyEmailToken = async(req, res, next) => {
 }
 
 const checkLoginOwner = async(req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
   getByEmailID(req.body, (error, results) => {
     if(error)
-      return res.json({
+      return res.status(400).json({
         status: "FAILED",
         message: error
       })
     if(!results)
-      return res.json({
+      return res.status(401).json({
         status: "FAILED",
         message: "Invalid Credentials"
       })
@@ -91,14 +85,14 @@ const checkLoginOwner = async(req, res, next) => {
       const jsontoken = sign({ resp: results}, "property", {
         expiresIn: "3m"
       })
-      return res.json({
+      return res.status(200).json({
         status: "SUCCESS",
         ownerid: results.ownerid,
         token: jsontoken
       })
     }
     else{
-      return res.json({
+      return res.status(400).json({
         status: "FAILED",
         message: "Username and Password doesnt match"
       })
@@ -112,11 +106,13 @@ const getAllOwner = async(req, res, next) => {
     query,
     (err, results, fields) => {
       if(!err){
-        console.log(results)
-        return res.json(results)
+        return res.status(200).json({
+          success: "SUCCESS",
+          data: results
+        })
       }
       else {
-        return res.json({
+        return res.status(500).json({
           status: "FAILED",
           message: err
         })
@@ -129,14 +125,17 @@ const updateByOwnerId = async(req, res, next) => {
   console.log(req.params.id)
   updateById([req.body, req.params.id], (error, results) => {
     if(error)
-      return false
+      return res.status(400).json({
+        success: "FAILURE",
+        message: error
+      })
     if(!results)
-      return res.json({
-        success: 0,
+      return res.status(500).json({
+        success: "FAILURE",
         message: "Failed to update user"
       })
     return res.status(200).json({
-      success: 1,
+      success: "SUCCESS",
       message: "successfully updated"
     })
   })
@@ -161,14 +160,20 @@ const postCatalogue = (req, res, next) => {
 const getCatalogue = (req, res, next) => {
   getCatalogueByOwnerId( req.params.id, (error, results) => {
     if(error)
-      return false
+      return res.status(400).json({
+        success: "FAILURE",
+        message: error
+      })
     if(!results)
       return res.json({
-        success: 0,
+        success: "FAILURE",
         message: "Failed to get catalogue"
       })
-    return res.status(200).json(results)
+    return res.status(200).json({
+      status: "SUCCESS",
+      data:results
+    })
   })
 }
 
-module.exports = {signUpOwner, checkLoginOwner, getAllOwner, updateByOwnerId, postCatalogue, getCatalogue, validateRegistrationFields, verifyEmailToken};
+module.exports = {signUpOwner, checkLoginOwner, getAllOwner, updateByOwnerId, postCatalogue, getCatalogue, verifyEmailToken};

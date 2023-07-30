@@ -3,7 +3,6 @@ const {genSaltSync, hashSync, compareSync} = require("bcrypt")
 
 module.exports = {
   createSignUp: (data, callback) => {
-    const password = data.password
     db.query(
       `insert into travellers (name, email, password) values (?,?,?)`,
       [

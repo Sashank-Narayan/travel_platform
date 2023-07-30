@@ -18,6 +18,7 @@ module.exports = {
       }
     )
   },
+  
   getBookingsCatalogueByTravellerId : (data,callback) => {
     db.query(
       `select bookingid, travellerid, catalogueid from bookings where travellerid=?`,

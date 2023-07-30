@@ -54,14 +54,14 @@ module.exports = {
     if(token){
       token = token.slice(7)
       verify(token, "property", (err, decode) => {
+        if (Date.now() >= decode?.exp * 1000) {
+          return res.status(401).json({ message: 'Token has expired.' });
+        }
         if(err) {
           res.json({
             success: 0,
             message: "Invalid Token"
           })
-        }
-        if (Date.now() >= decode.exp * 1000) {
-          return res.status(401).json({ message: 'Token has expired.' });
         }
         else{
           next();
