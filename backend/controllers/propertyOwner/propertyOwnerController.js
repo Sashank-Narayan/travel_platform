@@ -18,12 +18,12 @@ const signUpOwner = async(req, res, next) => {
   const token = encrypt(req.body.email);
   console.log(token)
   createSignUp(req.body, (err, results) => {
+    console.log(results);
   if(err)
     return res.status(500).json({
       status: "FAILED",
       message: err
     })
-
   try{
     message = `${process.env.HOST}property-owner/verify/${results.insertId}?token1=${token.token1}&token2=${token.token2}`;
     sendEmail(req.body.email, "Verify Email", message);
@@ -82,7 +82,7 @@ const checkLoginOwner = async(req, res, next) => {
     const resp = compareSync(req.body.password, results.password)
     if(resp){
       results.password = undefined;
-      const jsontoken = sign({ resp: results}, "property", {
+      const jsontoken = sign({ resp: results}, "property" + results.ownerid, {
         expiresIn: "3m"
       })
       return res.status(200).json({

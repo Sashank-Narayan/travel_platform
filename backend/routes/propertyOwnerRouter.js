@@ -21,6 +21,9 @@ propertyOwnerRouter.post("/create",validateSignUpFields, signUpOwner);
 propertyOwnerRouter.get("/verify/:id", verifyEmailToken);
 propertyOwnerRouter.post("/login",validateLoginFields,checkLoginOwner);
 propertyOwnerRouter.post("/:id/catalogue",checkOwnerToken,upload.single("images"), postCatalogue);
-propertyOwnerRouter.get("/:id/catalogue",checkOwnerToken, getCatalogue);
+// propertyOwnerRouter.get("/:id",checkOwnerToken, getCatalogue);
+propertyOwnerRouter.get("/",checkAdminToken, getAllOwner);
+propertyOwnerRouter.patch("/:id",checkAdminToken, updateByOwnerId);
+propertyOwnerRouter.get("/:id/catalogue",checkAdminToken, getCatalogue);
 
 module.exports = propertyOwnerRouter;

@@ -7,7 +7,7 @@ module.exports = {
   createSignUp: (data, callback) => {
     const password = data.password
     db.query(
-      `insert into property_owner (name, email, password, isapproved) values (?,?,?,false)`,
+      `insert into property_owner (name, email, password, verified, isapproved) values (?,?,?,false,false)`,
       [
         data.name,
         data.email,
