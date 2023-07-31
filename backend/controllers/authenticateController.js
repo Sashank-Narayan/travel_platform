@@ -9,6 +9,11 @@ const signUp = async(req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+  if(!(req.query.role == "admin" || req.query.role == "traveller"))
+    return res.json({
+      status: "FAILURE",
+      message: "Send a valid user role"
+    })
   console.log(req.query.role)
   req.body.userType = req.query.role;
   const salt = genSaltSync(10)
@@ -31,11 +36,8 @@ const checkLogin = async(req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
-  console.log(req.query.role)
-  req.body.userType = req.query.role;
-  console.log(req.query.userType)
   getByEmailID(req.body, (error, results) => {
-    console.log(req.query.role + results.travellerid)
+    console.log(results)
     if(error)
       return res.json({
         status: "FAILURE",
@@ -48,15 +50,16 @@ const checkLogin = async(req, res, next) => {
       })
     console.log(req.body.password, results)
     const resp = compareSync(req.body.password, results.password)
-    const key = req.query.role == "admin" ? req.query.role : req.query.role + results.travellerid;
     if(resp){
+      const key = results.role == "admin" ? results.role : results.role + results.userid;
       results.password = undefined;
       const jsontoken = sign({ resp: results}, key, {
         expiresIn: "1h"
       })
       return res.json({
         status: "SUCCESS",
-        id: req.query.role == "admin" ? results.adminid : results.travellerid,
+        id: results.userid,
+        admin: results.role == "admin" ? "yes" : "no",
         token: jsontoken
       })
     }

@@ -1,11 +1,11 @@
 const mysql = require("mysql2")
-// require("dotenv").config()
+require("dotenv").config()
 
 const con = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "Password@123",
-  database: "traveldb",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
   connectionLimit: 10
 })
 

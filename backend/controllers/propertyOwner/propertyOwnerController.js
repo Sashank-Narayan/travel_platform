@@ -28,8 +28,8 @@ const signUpOwner = async(req, res, next) => {
     message = `${process.env.HOST}property-owner/verify/${results.insertId}?token1=${token.token1}&token2=${token.token2}`;
     sendEmail(req.body.email, "Verify Email", message);
     } catch (error) {
-    return res.status(400).send({err : "An error occured " + error});
-  }
+        return res.status(400).send({err : "An error occured " + error});
+      }
   return res.status(200).json({
     status: "SUCCESS",
     verification_url: message,
@@ -40,12 +40,11 @@ const signUpOwner = async(req, res, next) => {
 
 const verifyEmailToken = async(req, res, next) => {
   let verfied = false;
-  console.log(req.query.token1, req.query.token2, req.params.id)
   getByOwnerId(req.params.id,(error, results) => {
     if (!results) return res.status(400).send("Invalid link");
     try{
       const resp = decrypt({token1: req.query.token1, token2: req.query.token2})
-      console.log(resp, req.query.token1, results.email)
+      console.log(resp, req.query.token1, results.email, req.params.id)
       if(resp == results.email){
         updateVerifiedByOwnerId(req.params.id, (err, rest) => {
           if(err)

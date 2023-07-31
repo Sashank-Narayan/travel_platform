@@ -4,8 +4,6 @@ const cors = require("cors")
 const travellerRouter = require("./routes/travelRouter")
 const propertyOwnerRouter = require("./routes/propertyOwnerRouter");
 const authRouter = require("./routes/authRouter");
-const {signUp, checkLogin} = require("./controllers/authenticateController");
-const {validateSignUpFields, validateLoginFields} = require("./utils/validateFields");
 require("./config/db")
 
 const app = express()

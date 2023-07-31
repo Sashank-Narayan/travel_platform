@@ -6,13 +6,14 @@ module.exports = {
     const password = data.password;
     console.log(data);
     // let query = "insert into" + data.userType == "a" ? "admin" : (data.userType == "o" ? "property_owner" : "travellers"); "(name, email, password, userType) values (?,?,?,?)"
-    let query = "insert into " + data.userType + " (name, email, password) values (?,?,?)"
+    let query = `insert into user (name, email, password, role) values (?,?,?,?)`
     db.query(
       query,
       [
         data.name,
         data.email,
         data.password,
+        data.userType
       ],
       (error, results, fields) => {
         if (error)
@@ -24,7 +25,7 @@ module.exports = {
 
   getByEmailID: (data, callback) => {
     // let query = "SELECT * FROM " + data.userType == "a" ? "admin" : (data.userType == "o" ? "property_owner" : "travellers"); "where email=?"
-    let query = "SELECT * FROM " + data.userType + " where email=?"
+    let query = "SELECT * FROM user where email=?"
     db.query(
       query,
       [

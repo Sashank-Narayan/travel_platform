@@ -1,11 +1,12 @@
-CREATE TABLE Travellers (
-    travellerid INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE user (
+    userid INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
     email VARCHAR(255) unique,
-    password VARCHAR(255)
+    password VARCHAR(255),
+    role VARCHAR(255)
 );
 
-CREATE TABLE Catalogue (
+CREATE TABLE catalogue (
     catalogueid INT AUTO_INCREMENT PRIMARY KEY,
     ownerid INT,
     title VARCHAR(255) unique,
@@ -19,23 +20,14 @@ CREATE TABLE property_owner (
     name VARCHAR(255),
     email VARCHAR(255) unique,
     password VARCHAR(255),
+    verified boolean,
     isapproved boolean
-);
-
-
-CREATE TABLE Admin (
-    adminid INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255),
-    email VARCHAR(255) unique,
-    password VARCHAR(255)
 );
 
 CREATE TABLE bookings (
     bookingid INT AUTO_INCREMENT PRIMARY KEY,
     travellerid INT,
-    ownerid INT,
     catalogueid INT,
-    foreign key (ownerid) references property_owner(ownerid),
-	foreign key (travellerid) references travellers(travellerid),
+	foreign key (travellerid) references user(userid),
 	foreign key (catalogueid) references catalogue(catalogueid)
 );
